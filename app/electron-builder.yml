@@ -1,0 +1,30 @@
+appId: play.chunky.launcher
+productName: ChunkyPlay
+directories:
+  output: release
+files:
+  - out/**
+  - package.json
+extraResources:
+  - from: ../companion-mod/build/libs
+    to: companion-mod
+    filter:
+      - "*.jar"
+win:
+  signAndEditExecutable: false
+  target:
+    - nsis
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+mac:
+  target:
+    - dmg
+linux:
+  target:
+    - AppImage
+    - deb
+publish:
+  provider: generic
+  url: https://updates.chunkyplay.local/

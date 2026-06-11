@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+
+# Logs and diagnostics
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript / test output
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# Electron / Vite build output
+app/out/
+app/release/
+app/.vite/
+dist/
+
+# Gradle / Java build output
+companion-mod/.gradle/
+companion-mod/build/
+companion-mod/.settings/
+*.class
+
+# Packaged Electron runtime copied to repo root
+/*.exe
+/*.dll
+/*.pak
+/*.bin
+/locales/
+/resources/
+/vk_swiftshader_icd.json
+/LICENSE.electron.txt
+/LICENSES.chromium.html
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "chunkyplay-companion",
+  "version": "${version}",
+  "name": "ChunkyPlay Companion",
+  "description": "Depth-tested hitbox toggle and local-only HUD overlays for ChunkyPlay.",
+  "authors": ["ChunkyPlay"],
+  "contact": {
+    "homepage": "https://chunkyplay.local"
+  },
+  "license": "MIT",
+  "icon": "assets/chunkyplay-companion/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": ["play.chunky.companion.ChunkyPlayCompanion"],
+    "client": ["play.chunky.companion.ChunkyPlayClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
+

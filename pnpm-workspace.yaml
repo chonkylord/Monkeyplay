@@ -1,0 +1,5 @@
+packages:
+  - app
+allowBuilds:
+  electron: true
+  esbuild: true
