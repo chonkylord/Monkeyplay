@@ -1,4 +1,4 @@
-# ChunkyPlay Build Log
+# MonkeyPlay Build Log
 
 ## 2026-06-11
 
@@ -30,7 +30,7 @@
   - Modrinth search/install dependency walk for required dependencies.
   - electron-builder NSIS packaging and electron-updater configuration stub.
 - Companion mod implemented:
-  - Fabric mod id `chunkyplay-companion`.
+  - Fabric mod id `monkeyplay-companion`.
   - Boundary header in source.
   - Hitbox toggle uses only `client.getEntityRenderDispatcher().setRenderHitboxes(hitboxesEnabled)`.
   - HUD overlay uses local FPS, CPS, ping, coordinates/facing, keystrokes, and own successful-hit count.
@@ -48,9 +48,9 @@
   - `pnpm -C app test` passed: 1 test file, 4 tests.
   - `pnpm -C app build` passed.
   - `.\gradlew.bat build` in `companion-mod/` passed.
-  - Playwright Electron smoke test against source app passed: title `ChunkyPlay`, visible brand count `1`.
-  - Playwright Electron smoke test against packaged `app/release/win-unpacked/ChunkyPlay.exe` passed: title `ChunkyPlay`, visible brand count `1`, no console/page errors.
-  - Windows installer produced: `app/release/ChunkyPlay Setup 0.1.0.exe` (`84,325,984` bytes).
+  - Playwright Electron smoke test against source app passed: title `MonkeyPlay`, visible brand count `1`.
+  - Playwright Electron smoke test against packaged `app/release/win-unpacked/MonkeyPlay.exe` passed: title `MonkeyPlay`, visible brand count `1`, no console/page errors.
+  - Windows installer produced: `app/release/MonkeyPlay Setup 0.1.0.exe` (`84,325,984` bytes).
 - Gate status:
   - M0 is passing locally.
   - M1-M9 are not fully gate-verified. The code contains meaningful slices for launch core, accounts, instances, Modrinth, companion mod, and packaging, but the spec's later gates require live Minecraft title-screen launches, real Microsoft sign-in, loader-specific launches, in-world screenshots, shader/FPS validation, and update-feed validation.
@@ -67,4 +67,4 @@
 - UI wiring: instance delete, per-instance RAM, account switch/delete, and Microsoft device-code sign-in are all wired through the store/preload/IPC; error banner is dismissable and a notice banner drives the sign-in flow.
 - Theme: full Minecraft-GUI restyle (Press Start 2P / VT323 pixel fonts, dark stone background, beveled blocky panels/buttons, grass-green accents, pixel RAM slider).
 - Checks: `typecheck`, `lint`, and `vitest` (11 tests, incl. new loader/diagnostics/Xms cases) pass. New `scripts/smoke.mjs` serves the production renderer and drives it in Chromium with a stubbed IPC bridge — 14 checks pass (theme, all panels, create-instance, RAM slider, Modrinth search, account create, zero runtime errors) and writes `release/smoke.png`.
-- Packaging: `extract-zip` is loaded via `createRequire` (consistent with `electron-updater`) to avoid an ESM/CJS preparse crash on raw `out/` launches. Companion mod rebuilt via `gradlew.bat build` (boundary test passing) and re-bundled. Repackaged installer + `win-unpacked` produced; packaged `ChunkyPlay.exe` launches clean (exit 0, no stderr).
+- Packaging: `extract-zip` is loaded via `createRequire` (consistent with `electron-updater`) to avoid an ESM/CJS preparse crash on raw `out/` launches. Companion mod rebuilt via `gradlew.bat build` (boundary test passing) and re-bundled. Repackaged installer + `win-unpacked` produced; packaged `MonkeyPlay.exe` launches clean (exit 0, no stderr).

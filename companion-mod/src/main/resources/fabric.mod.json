@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "chunkyplay-companion",
+  "id": "monkeyplay-companion",
   "version": "${version}",
-  "name": "ChunkyPlay Companion",
-  "description": "Depth-tested hitbox toggle and local-only HUD overlays for ChunkyPlay.",
-  "authors": ["ChunkyPlay"],
+  "name": "MonkeyPlay Companion",
+  "description": "Depth-tested hitbox toggle and local-only HUD overlays for MonkeyPlay.",
+  "authors": ["MonkeyPlay"],
   "contact": {
-    "homepage": "https://chunkyplay.local"
+    "homepage": "https://monkeyplay.local"
   },
   "license": "MIT",
-  "icon": "assets/chunkyplay-companion/icon.png",
+  "icon": "assets/monkeyplay-companion/icon.png",
   "environment": "client",
   "entrypoints": {
-    "main": ["play.chunky.companion.ChunkyPlayCompanion"],
-    "client": ["play.chunky.companion.ChunkyPlayClient"]
+    "main": ["play.monkey.companion.MonkeyPlayCompanion"],
+    "client": ["play.monkey.companion.MonkeyPlayClient"]
   },
   "depends": {
     "fabricloader": ">=0.16.9",

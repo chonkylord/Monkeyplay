@@ -56,6 +56,6 @@ const api = {
   }
 };
 
-contextBridge.exposeInMainWorld("chunkyplay", api);
+contextBridge.exposeInMainWorld("monkeyplay", api);
 
-export type ChunkyPlayApi = typeof api;
+export type MonkeyPlayApi = typeof api;

@@ -1,4 +1,4 @@
-package play.chunky.companion;
+package play.monkey.companion;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 final class BoundaryTest {
     @Test
     void hitboxesUseOnlyVanillaRendererFlag() throws IOException {
-        String source = Files.readString(Path.of("src/client/java/play/chunky/companion/ChunkyPlayClient.java"));
+        String source = Files.readString(Path.of("src/client/java/play/monkey/companion/MonkeyPlayClient.java"));
 
         assertTrue(source.contains("setRenderHitboxes(hitboxesEnabled)"));
         assertFalse(source.contains("disableDepthTest"));

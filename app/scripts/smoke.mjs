@@ -39,7 +39,7 @@ function check(label, condition) {
 
 // Minimal in-memory fake of the main process, matching the preload surface.
 const bridgeStub = `
-window.chunkyplay = (() => {
+window.monkeyplay = (() => {
   let instances = [];
   let accounts = [];
   const noop = () => {};
@@ -80,7 +80,7 @@ try {
   await page.goto(`http://localhost:${port}/`, { waitUntil: "networkidle" });
   await page.waitForSelector(".app-shell", { timeout: 10000 });
 
-  check("brand mark renders 'ChunkyPlay'", (await page.locator(".brand-mark strong").innerText()) === "ChunkyPlay");
+  check("brand mark renders 'MonkeyPlay'", (await page.locator(".brand-mark strong").innerText()) === "MonkeyPlay");
   check("instances panel visible", await page.locator("#instances").isVisible());
   check("mods panel visible", await page.locator("#mods").isVisible());
   check("accounts panel visible", await page.locator("#accounts").isVisible());

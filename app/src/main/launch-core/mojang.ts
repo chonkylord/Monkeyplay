@@ -81,7 +81,7 @@ function osClassifierKey(): string {
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "ChunkyPlay/0.1.0"
+      "User-Agent": "MonkeyPlay/0.1.0"
     }
   });
   if (!response.ok) {

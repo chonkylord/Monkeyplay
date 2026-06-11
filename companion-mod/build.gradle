@@ -14,7 +14,7 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        "chunkyplay-companion" {
+        "monkeyplay-companion" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }

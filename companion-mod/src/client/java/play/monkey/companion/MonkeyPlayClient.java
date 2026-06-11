@@ -1,12 +1,12 @@
 /*
- * ChunkyPlay Companion boundaries:
+ * MonkeyPlay Companion boundaries:
  * - Hitboxes must only use Minecraft's own EntityRenderDispatcher#setRenderHitboxes flag.
  * - Hitboxes remain depth-tested and terrain-occluded exactly like vanilla F3+B.
  * - HUD widgets may display only local, vanilla-visible client state.
  * - No aim assist, triggerbot, auto-clicker, kill aura, reach changes, X-ray, ESP,
  *   velocity changes, packet manipulation, or anticheat evasion may be added here.
  */
-package play.chunky.companion;
+package play.monkey.companion;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -24,7 +24,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public final class ChunkyPlayClient implements ClientModInitializer {
+public final class MonkeyPlayClient implements ClientModInitializer {
     private static final int WHITE = 0xFFFFFFFF;
     private static final int ACCENT = 0xFF65A894;
     private final Deque<Long> leftClicks = new ArrayDeque<>();
@@ -44,28 +44,28 @@ public final class ChunkyPlayClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         hitboxToggle = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.chunkyplay.hitboxes",
+            "key.monkeyplay.hitboxes",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.chunkyplay"
+            "category.monkeyplay"
         ));
         hudToggle = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.chunkyplay.hud",
+            "key.monkeyplay.hud",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.chunkyplay"
+            "category.monkeyplay"
         ));
         toggleSprint = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.chunkyplay.toggle_sprint",
+            "key.monkeyplay.toggle_sprint",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.chunkyplay"
+            "category.monkeyplay"
         ));
         toggleSneak = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.chunkyplay.toggle_sneak",
+            "key.monkeyplay.toggle_sneak",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.chunkyplay"
+            "category.monkeyplay"
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
@@ -83,7 +83,7 @@ public final class ChunkyPlayClient implements ClientModInitializer {
             hitboxesEnabled = !hitboxesEnabled;
             client.getEntityRenderDispatcher().setRenderHitboxes(hitboxesEnabled);
             if (client.player != null) {
-                client.player.sendMessage(Text.literal("ChunkyPlay hitboxes " + (hitboxesEnabled ? "on" : "off")), true);
+                client.player.sendMessage(Text.literal("MonkeyPlay hitboxes " + (hitboxesEnabled ? "on" : "off")), true);
             }
         }
         while (hudToggle.wasPressed()) {

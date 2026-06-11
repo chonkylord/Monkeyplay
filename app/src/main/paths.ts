@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 
 export function dataRoot(): string {
-  return process.env.CHUNKYPLAY_DATA_DIR ?? app.getPath("userData");
+  return process.env.MONKEYPLAY_DATA_DIR ?? app.getPath("userData");
 }
 
 export function sharedRoot(): string {

@@ -4,7 +4,7 @@ import { storeRefreshToken, upsertMicrosoftAccount } from "./accountService";
 const tenant = "consumers";
 const deviceCodeUrl = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/devicecode`;
 const tokenUrl = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`;
-const minecraftClientId = process.env.CHUNKYPLAY_MS_CLIENT_ID ?? "00000000402b5328";
+const minecraftClientId = process.env.MONKEYPLAY_MS_CLIENT_ID ?? "00000000402b5328";
 
 interface MicrosoftDeviceCodeResponse {
   user_code: string;
@@ -45,7 +45,7 @@ async function postForm<T>(url: string, body: Record<string, string>): Promise<T
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": "ChunkyPlay/0.1.0"
+      "User-Agent": "MonkeyPlay/0.1.0"
     },
     body: new URLSearchParams(body)
   });
@@ -57,7 +57,7 @@ async function postJson<T>(url: string, body: unknown, authorization?: string): 
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "User-Agent": "ChunkyPlay/0.1.0",
+      "User-Agent": "MonkeyPlay/0.1.0",
       ...(authorization ? { Authorization: authorization } : {})
     },
     body: JSON.stringify(body)
@@ -81,7 +81,7 @@ export async function requestDeviceCode(): Promise<DeviceCodeResponse> {
     const detail = result.error_description ?? result.error ?? "Microsoft did not return a device code.";
     throw new Error(
       `Microsoft sign-in is not available: ${detail} ` +
-        `Set a valid Azure client id via the CHUNKYPLAY_MS_CLIENT_ID environment variable, ` +
+        `Set a valid Azure client id via the MONKEYPLAY_MS_CLIENT_ID environment variable, ` +
         `or use an Offline account.`
     );
   }
@@ -137,7 +137,7 @@ export async function completeDeviceCode(deviceCode: string): Promise<{ accountI
   const profileResponse = await fetch("https://api.minecraftservices.com/minecraft/profile", {
     headers: {
       Authorization: `Bearer ${mc.access_token}`,
-      "User-Agent": "ChunkyPlay/0.1.0"
+      "User-Agent": "MonkeyPlay/0.1.0"
     }
   });
   if (!profileResponse.ok) {

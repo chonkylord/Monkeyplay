@@ -1,4 +1,4 @@
-# ChunkyPlay — Autonomous Build & Execution Specification
+# MonkeyPlay — Autonomous Build & Execution Specification
 
 **Document version:** 1.0
 **Target executor:** an autonomous coding agent (build + run + debug + package, end-to-end)
@@ -9,16 +9,16 @@
 
 ## 0. How to use this document
 
-This file is the complete spec for building **ChunkyPlay**, a Minecraft: Java Edition
+This file is the complete spec for building **MonkeyPlay**, a Minecraft: Java Edition
 launcher. Hand the agent the kickoff prompt below; it then reads this whole file and
 works autonomously through the milestones, self-verifying at each gate.
 
 ### Kickoff prompt (paste this to the building agent)
 
-> Read `chunkyplay/EXECUTION.md` in full. Build ChunkyPlay exactly to that spec,
+> Read `monkeyplay/EXECUTION.md` in full. Build MonkeyPlay exactly to that spec,
 > working milestone by milestone (M0 → M9). After each milestone, run its acceptance
 > checks and do not advance until they pass. Use the autonomous build/debug loop in
-> §9. Keep a running progress log in `chunkyplay/BUILD_LOG.md`. Do not add any feature
+> §9. Keep a running progress log in `monkeyplay/BUILD_LOG.md`. Do not add any feature
 > outside the scope in §2, and obey the hard boundaries in §3 — if a feature would
 > require crossing one of those lines, stop and leave it unbuilt. When all milestones
 > pass the Definition of Done in §11, produce a packaged installer and a short summary.
@@ -27,7 +27,7 @@ works autonomously through the milestones, self-verifying at each gate.
 
 ## 1. Mission
 
-ChunkyPlay is a polished, installable launcher for Minecraft: Java Edition that
+MonkeyPlay is a polished, installable launcher for Minecraft: Java Edition that
 competes with Lunar Client / Badlion / Prism on the things that matter: fast startup,
 clean instance management, first-class mod-loader and shader support, and a tasteful
 in-game HUD tuned for PVP players. It is a single distributable application.
@@ -55,13 +55,13 @@ exposes — presented well.
   EntityCulling) from Modrinth.
 - Mod browser: search/install/update mods and shaderpacks via the **Modrinth API**;
   resolve dependencies; per-instance enable/disable.
-- ChunkyPlay Companion mod (see §6): ships the hitbox toggle + HUD overlays.
+- MonkeyPlay Companion mod (see §6): ships the hitbox toggle + HUD overlays.
 - UI: dashboard, instance grid, per-instance settings, mod browser, account manager,
   logs viewer, settings. Custom themeable design.
 - Auto-update for the launcher itself.
 - Packaged installers per OS.
 
-**ChunkyPlay Companion (Fabric mod)** — see §6 for the exact, bounded feature list.
+**MonkeyPlay Companion (Fabric mod)** — see §6 for the exact, bounded feature list.
 
 ---
 
@@ -89,7 +89,7 @@ it unbuilt and note it in `BUILD_LOG.md`.
    client already has (your FPS, your coords, your clicks, tab-list ping). They must not
    derive hidden information about other players or the world.
 6. **No detection evasion.** Do not obfuscate the client, spoof the brand/version string
-   to hide ChunkyPlay, randomize signatures, or otherwise try to defeat server anticheat.
+   to hide MonkeyPlay, randomize signatures, or otherwise try to defeat server anticheat.
    The companion mod registers under its real id.
 
 If the original request reappears (X-ray, auto-aim, auto-hit, ESP) — it is out of scope.
@@ -116,14 +116,14 @@ build. Swap only if a hard blocker appears, and record why in `BUILD_LOG.md`.
 | Tests | **Vitest** (TS) + **JUnit** (mod) + **Playwright** (E2E on the renderer) | Self-verifiable gates. |
 | Package manager | **pnpm** | Fast, deterministic. |
 
-Project root is this folder: `chunkyplay/`.
+Project root is this folder: `monkeyplay/`.
 
 ---
 
 ## 5. Architecture
 
 ```
-chunkyplay/
+monkeyplay/
 ├─ EXECUTION.md            ← this file
 ├─ BUILD_LOG.md            ← agent writes progress here
 ├─ app/                    ← Electron launcher
@@ -140,8 +140,8 @@ chunkyplay/
 │  ├─ electron-builder.yml
 │  ├─ package.json
 │  └─ vite.config.ts
-├─ companion-mod/          ← ChunkyPlay Companion (Fabric, Java 21)
-│  ├─ src/main/java/play/chunky/companion/
+├─ companion-mod/          ← MonkeyPlay Companion (Fabric, Java 21)
+│  ├─ src/main/java/play/monkey/companion/
 │  ├─ src/main/resources/  ← fabric.mod.json, mixins, assets
 │  └─ build.gradle
 └─ shared/                 ← TS types shared between main/renderer
@@ -151,9 +151,9 @@ chunkyplay/
 false`). It talks to the main process only through a typed `preload` bridge over IPC.
 The main process owns all filesystem, network, auth, and child-process work.
 
-**On-disk data layout** (per OS app-data dir, e.g. `%APPDATA%/ChunkyPlay/`):
+**On-disk data layout** (per OS app-data dir, e.g. `%APPDATA%/MonkeyPlay/`):
 ```
-ChunkyPlay/
+MonkeyPlay/
 ├─ accounts.json            ← non-secret account metadata (tokens go in OS keychain)
 ├─ settings.json
 ├─ instances/<name>/        ← .minecraft per instance (mods, config, saves, …)
@@ -168,9 +168,9 @@ ChunkyPlay/
 
 ---
 
-## 6. ChunkyPlay Companion mod — exact feature spec
+## 6. MonkeyPlay Companion mod — exact feature spec
 
-A Fabric mod (id `chunkyplay-companion`) the launcher installs into Fabric/Quilt
+A Fabric mod (id `monkeyplay-companion`) the launcher installs into Fabric/Quilt
 instances. It is the *only* place in-game behavior is added. Everything here is
 read-only display or vanilla-equivalent, per §3.
 

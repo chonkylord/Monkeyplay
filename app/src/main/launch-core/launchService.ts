@@ -105,7 +105,7 @@ export async function launchOffline(request: LaunchRequest): Promise<LaunchResul
       assetIndex
     });
 
-    log.write(`ChunkyPlay launch ${launchId}\n`);
+    log.write(`MonkeyPlay launch ${launchId}\n`);
     log.write(`Instance: ${instance.name} (${instance.loader}${loaderVersion ? ` ${loaderVersion}` : ""})\n`);
     log.write(`Java: ${java.path}\n`);
     log.write(`Args: ${args.map((arg) => (arg.includes("accessToken") ? "[redacted]" : arg)).join(" ")}\n\n`);

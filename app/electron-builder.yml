@@ -1,5 +1,6 @@
-appId: play.chunky.launcher
-productName: ChunkyPlay
+appId: play.monkey.launcher
+productName: MonkeyPlay
+icon: build/icon.ico
 directories:
   output: release
 files:
@@ -10,8 +11,11 @@ extraResources:
     to: companion-mod
     filter:
       - "*.jar"
+  - from: build/icon.png
+    to: icon.png
 win:
   signAndEditExecutable: false
+  icon: build/icon.ico
   target:
     - nsis
 nsis:
@@ -27,4 +31,4 @@ linux:
     - deb
 publish:
   provider: generic
-  url: https://updates.chunkyplay.local/
+  url: https://updates.monkeyplay.local/

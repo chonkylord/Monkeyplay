@@ -37,7 +37,7 @@ const loaderMeta: Record<"fabric" | "quilt", { listUrl: (mc: string) => string; 
 };
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { headers: { "User-Agent": "ChunkyPlay/0.1.0" } });
+  const response = await fetch(url, { headers: { "User-Agent": "MonkeyPlay/0.1.0" } });
   if (!response.ok) {
     throw new Error(`Loader metadata request failed (${response.status}) for ${url}`);
   }
@@ -100,7 +100,7 @@ export async function applyLoader(
 
   if (loader === "forge" || loader === "neoforge") {
     throw new Error(
-      `${loader === "forge" ? "Forge" : "NeoForge"} instances are not yet auto-installed by ChunkyPlay. ` +
+      `${loader === "forge" ? "Forge" : "NeoForge"} instances are not yet auto-installed by MonkeyPlay. ` +
         `Install the ${loader} client profile for Minecraft ${minecraftVersion} with the official installer, ` +
         `or use a Fabric/Quilt instance for Modrinth mods.`
     );

@@ -50,7 +50,7 @@ export async function downloadFile(url: string, targetPath: string, expectedSha1
 
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "ChunkyPlay/0.1.0"
+      "User-Agent": "MonkeyPlay/0.1.0"
     }
   });
   if (!response.ok || !response.body) {

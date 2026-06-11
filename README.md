@@ -1,6 +1,6 @@
-# ChunkyPlay
+# MonkeyPlay
 
-ChunkyPlay is an Electron + React launcher scaffold for Minecraft: Java Edition, with a Fabric companion mod project.
+MonkeyPlay is an Electron + React launcher scaffold for Minecraft: Java Edition, with a Fabric companion mod project.
 
 ## Development
 
@@ -25,9 +25,9 @@ cd companion-mod
 pnpm -C app package
 ```
 
-The launcher stores runtime data under the OS app-data directory by default. For tests or local isolation, set `CHUNKYPLAY_DATA_DIR`.
+The launcher stores runtime data under the OS app-data directory by default. For tests or local isolation, set `MONKEYPLAY_DATA_DIR`.
 
 ## Boundaries
 
-ChunkyPlay does not include aim assist, triggerbots, auto-clickers, X-ray, ESP, reach changes, velocity changes, packet manipulation, or anticheat evasion. The companion mod's hitbox toggle is limited to Minecraft's own vanilla hitbox renderer flag.
+MonkeyPlay does not include aim assist, triggerbots, auto-clickers, X-ray, ESP, reach changes, velocity changes, packet manipulation, or anticheat evasion. The companion mod's hitbox toggle is limited to Minecraft's own vanilla hitbox renderer flag.
 

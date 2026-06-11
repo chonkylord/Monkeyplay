@@ -53,7 +53,7 @@ export function buildLaunchArguments(input: LaunchArgumentsInput): string[] {
     user_type: "msa",
     version_type: "release",
     natives_directory: input.nativesDir,
-    launcher_name: input.launcherName ?? "ChunkyPlay",
+    launcher_name: input.launcherName ?? "MonkeyPlay",
     launcher_version: input.launcherVersion ?? "0.1.0",
     classpath
   };

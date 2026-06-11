@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
-import type { ChunkyPlayApi } from "../preload";
+import type { MonkeyPlayApi } from "../preload";
 
 declare global {
   interface Window {
-    chunkyplay: ChunkyPlayApi;
+    monkeyplay: MonkeyPlayApi;
   }
 }
 

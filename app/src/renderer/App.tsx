@@ -1,6 +1,5 @@
 import type { LoaderType } from "@shared/types";
 import {
-  Box,
   Download,
   HardDrive,
   KeyRound,
@@ -15,6 +14,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { InstanceCard } from "./components/InstanceCard";
 import { LogsPanel } from "./components/LogsPanel";
 import { useLauncherStore } from "./store/useLauncherStore";
+import monkeyIcon from "./assets/monkey.png";
 
 const loaderOptions: LoaderType[] = ["vanilla", "fabric", "quilt", "forge", "neoforge"];
 
@@ -46,7 +46,7 @@ export function App() {
     updateSettings,
     appendLaunchEvent
   } = useLauncherStore();
-  const [instanceName, setInstanceName] = useState("Chunky Vanilla");
+  const [instanceName, setInstanceName] = useState("Monkey Vanilla");
   const [version, setVersion] = useState("1.21.4");
   const [loader, setLoader] = useState<LoaderType>("fabric");
   const [offlineName, setOfflineName] = useState("Player");
@@ -55,7 +55,7 @@ export function App() {
 
   useEffect(() => {
     void bootstrap();
-    return window.chunkyplay.launch.onEvent(appendLaunchEvent);
+    return window.monkeyplay.launch.onEvent(appendLaunchEvent);
   }, [appendLaunchEvent, bootstrap]);
 
   const selectedInstance = useMemo(
@@ -83,11 +83,9 @@ export function App() {
     <main className="app-shell">
       <aside className="sidebar">
         <div className="brand-mark">
-          <span className="brand-block">
-            <Box size={22} />
-          </span>
+          <img className="brand-block" src={monkeyIcon} alt="MonkeyPlay" />
           <div>
-            <strong>ChunkyPlay</strong>
+            <strong>MonkeyPlay</strong>
             <span>Java Edition Launcher</span>
           </div>
         </div>

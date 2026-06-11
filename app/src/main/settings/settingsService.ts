@@ -8,7 +8,7 @@ const defaultSettings: LauncherSettings = {
   concurrentDownloads: 4,
   defaultRamMb: 4096,
   defaultJvmArgs: ["-XX:+UseG1GC", "-XX:+UnlockExperimentalVMOptions"],
-  modrinthUserAgent: "ChunkyPlay/0.1.0 (contact: local-dev)"
+  modrinthUserAgent: "MonkeyPlay/0.1.0 (contact: local-dev)"
 };
 
 function settingsPath(): string {

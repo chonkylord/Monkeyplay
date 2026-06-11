@@ -37,7 +37,7 @@ describe("argument builder", () => {
       minecraftVersion: "1.21.4",
       loader: "vanilla",
       ramMb: 2048,
-      jvmArgs: ["-Dchunky=true"],
+      jvmArgs: ["-Dmonkey=true"],
       gameDir: "C:/game",
       createdAt: "now",
       updatedAt: "now"
@@ -64,7 +64,7 @@ describe("argument builder", () => {
       assetIndex: "17"
     });
 
-    expect(args).toContain("-Dchunky=true");
+    expect(args).toContain("-Dmonkey=true");
     expect(args).toContain("-Xmx2048M");
     expect(args).toContain("-Xms1024M");
     expect(args).toContain("-Djava.library.path=C:/natives");

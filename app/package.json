@@ -1,8 +1,8 @@
 {
-  "name": "chunkyplay",
+  "name": "monkeyplay",
   "version": "0.1.0",
-  "description": "ChunkyPlay Minecraft launcher",
-  "author": "ChunkyPlay",
+  "description": "MonkeyPlay Minecraft launcher",
+  "author": "MonkeyPlay",
   "private": true,
   "type": "module",
   "main": "out/main/index.js",
@@ -45,8 +45,8 @@
     "vitest": "^2.1.8"
   },
   "build": {
-    "appId": "play.chunky.launcher",
-    "productName": "ChunkyPlay",
+    "appId": "play.monkey.launcher",
+    "productName": "MonkeyPlay",
     "directories": {
       "output": "release"
     },
@@ -87,7 +87,7 @@
     },
     "publish": {
       "provider": "generic",
-      "url": "https://updates.chunkyplay.local/"
+      "url": "https://updates.monkeyplay.local/"
     }
   }
 }

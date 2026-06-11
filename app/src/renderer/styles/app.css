@@ -89,17 +89,11 @@ strong,
 }
 
 .brand-block {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  color: #16240c;
-  background: linear-gradient(180deg, var(--grass-light) 0 40%, var(--grass) 40% 100%);
-  border: 3px solid;
-  border-top-color: var(--grass-light);
-  border-left-color: var(--grass-light);
-  border-bottom-color: var(--grass-dark);
-  border-right-color: var(--grass-dark);
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border: 2px solid var(--line);
+  image-rendering: auto;
 }
 
 .brand-mark strong {

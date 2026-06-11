@@ -54,11 +54,11 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
     set({ busy: true, error: undefined });
     try {
       const [settings, instances, accounts, java, totalMemoryMb] = await Promise.all([
-        window.chunkyplay.settings.get(),
-        window.chunkyplay.instances.list(),
-        window.chunkyplay.accounts.list(),
-        window.chunkyplay.system.java(),
-        window.chunkyplay.system.totalMemoryMb()
+        window.monkeyplay.settings.get(),
+        window.monkeyplay.instances.list(),
+        window.monkeyplay.accounts.list(),
+        window.monkeyplay.system.java(),
+        window.monkeyplay.system.totalMemoryMb()
       ]);
       set({
         settings,
@@ -76,7 +76,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   createInstance: async (input) => {
     set({ busy: true, error: undefined });
     try {
-      const instance = await window.chunkyplay.instances.create(input);
+      const instance = await window.monkeyplay.instances.create(input);
       set((state) => ({
         instances: [...state.instances, instance],
         selectedInstanceId: instance.id,
@@ -89,7 +89,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   updateInstance: async (id, update) => {
     set({ busy: true, error: undefined });
     try {
-      const updated = await window.chunkyplay.instances.update(id, update);
+      const updated = await window.monkeyplay.instances.update(id, update);
       set((state) => ({
         instances: state.instances.map((instance) => (instance.id === id ? updated : instance)),
         busy: false
@@ -101,7 +101,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   deleteInstance: async (id) => {
     set({ busy: true, error: undefined });
     try {
-      await window.chunkyplay.instances.delete(id);
+      await window.monkeyplay.instances.delete(id);
       set((state) => {
         const instances = state.instances.filter((instance) => instance.id !== id);
         return {
@@ -118,7 +118,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   setActiveAccount: async (accountId) => {
     set({ busy: true, error: undefined });
     try {
-      const accounts = await window.chunkyplay.accounts.setActive(accountId);
+      const accounts = await window.monkeyplay.accounts.setActive(accountId);
       set({ accounts, busy: false });
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
@@ -127,7 +127,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   deleteAccount: async (accountId) => {
     set({ busy: true, error: undefined });
     try {
-      await window.chunkyplay.accounts.delete(accountId);
+      await window.monkeyplay.accounts.delete(accountId);
       set((state) => ({ accounts: state.accounts.filter((account) => account.id !== accountId), busy: false }));
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
@@ -136,15 +136,15 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   signInMicrosoft: async () => {
     set({ busy: true, error: undefined, notice: undefined });
     try {
-      const device = await window.chunkyplay.auth.requestDeviceCode();
+      const device = await window.monkeyplay.auth.requestDeviceCode();
       if (device.verificationUri) {
-        await window.chunkyplay.system.openExternal(device.verificationUri);
+        await window.monkeyplay.system.openExternal(device.verificationUri);
       }
       set({
         notice: `Microsoft sign-in: enter code ${device.userCode} at ${device.verificationUri}, then this window finishes automatically.`
       });
-      const result = await window.chunkyplay.auth.completeDeviceCode(device.deviceCode);
-      const accounts = await window.chunkyplay.accounts.list();
+      const result = await window.monkeyplay.auth.completeDeviceCode(device.deviceCode);
+      const accounts = await window.monkeyplay.accounts.list();
       set({ accounts, busy: false, notice: `Signed in as ${result.username}.` });
     } catch (error) {
       set({ error: (error as Error).message, busy: false, notice: undefined });
@@ -153,7 +153,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   createOfflineAccount: async (username) => {
     set({ busy: true, error: undefined });
     try {
-      const account = await window.chunkyplay.accounts.createOffline(username);
+      const account = await window.monkeyplay.accounts.createOffline(username);
       set((state) => ({
         accounts: [...state.accounts.filter((item) => item.id !== account.id).map((item) => ({ ...item, active: false })), account],
         busy: false
@@ -165,7 +165,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   launchOffline: async (instanceId, username) => {
     set({ busy: true, error: undefined });
     try {
-      await window.chunkyplay.launch.offline({ instanceId, offlineUsername: username });
+      await window.monkeyplay.launch.offline({ instanceId, offlineUsername: username });
       set({ busy: false });
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
@@ -178,7 +178,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
     }
     set({ busy: true, error: undefined });
     try {
-      const modrinthResults = await window.chunkyplay.modrinth.search(query, projectType);
+      const modrinthResults = await window.monkeyplay.modrinth.search(query, projectType);
       set({ modrinthResults, busy: false });
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
@@ -187,7 +187,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   installModrinth: async (projectId, instanceId) => {
     set({ busy: true, error: undefined });
     try {
-      await window.chunkyplay.modrinth.install(projectId, instanceId);
+      await window.monkeyplay.modrinth.install(projectId, instanceId);
       set({ busy: false });
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
@@ -196,7 +196,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   updateSettings: async (settingsUpdate) => {
     set({ busy: true, error: undefined });
     try {
-      const settings = await window.chunkyplay.settings.update(settingsUpdate);
+      const settings = await window.monkeyplay.settings.update(settingsUpdate);
       set({ settings, busy: false });
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
