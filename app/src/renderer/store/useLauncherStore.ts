@@ -137,7 +137,9 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
     set({ busy: true, error: undefined, notice: undefined });
     try {
       const device = await window.chunkyplay.auth.requestDeviceCode();
-      await window.chunkyplay.system.openExternal(device.verificationUri);
+      if (device.verificationUri) {
+        await window.chunkyplay.system.openExternal(device.verificationUri);
+      }
       set({
         notice: `Microsoft sign-in: enter code ${device.userCode} at ${device.verificationUri}, then this window finishes automatically.`
       });

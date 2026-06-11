@@ -42,6 +42,11 @@ const rules: Rule[] = [
     hint: "A downloaded file was corrupted. Delete the launcher cache (shared/) or retry; this is usually a transient CDN error."
   },
   {
+    code: "CP-AUTH-007",
+    match: (m) => /microsoft sign-in is not available|authorization_pending|xbox live|minecraft profile request failed/i.test(m),
+    hint: "Microsoft sign-in needs a valid Azure client id (CHUNKYPLAY_MS_CLIENT_ID). Offline accounts work without it."
+  },
+  {
     code: "CP-DISK-006",
     match: (m) => /ENOSPC|EACCES|EPERM|EROFS/i.test(m),
     hint: "ChunkyPlay could not write to its data directory. Free disk space or run with permission to the app-data folder."

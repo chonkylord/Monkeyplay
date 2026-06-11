@@ -13,6 +13,8 @@ interface MicrosoftDeviceCodeResponse {
   expires_in: number;
   interval: number;
   message: string;
+  error?: string;
+  error_description?: string;
 }
 
 interface TokenResponse {
@@ -71,6 +73,19 @@ export async function requestDeviceCode(): Promise<DeviceCodeResponse> {
     client_id: minecraftClientId,
     scope: "XboxLive.signin offline_access"
   });
+
+  // Microsoft returns an error object (HTTP 400) when the client_id is not a
+  // valid Azure app registered for the device-code flow. Surface that clearly
+  // instead of letting an undefined verification_uri blow up downstream.
+  if (result.error || !result.verification_uri || !result.user_code) {
+    const detail = result.error_description ?? result.error ?? "Microsoft did not return a device code.";
+    throw new Error(
+      `Microsoft sign-in is not available: ${detail} ` +
+        `Set a valid Azure client id via the CHUNKYPLAY_MS_CLIENT_ID environment variable, ` +
+        `or use an Offline account.`
+    );
+  }
+
   return {
     userCode: result.user_code,
     deviceCode: result.device_code,
