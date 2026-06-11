@@ -2,6 +2,7 @@ import type { RuntimeInfo } from "@shared/types";
 import { access } from "node:fs/promises";
 import { delimiter, join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { ensureTemurinJre } from "./temurin";
 
 const versionPattern = /version "(?:(\d+)\.)?(?:(\d+)\.)?(\d+)/;
 
@@ -68,15 +69,20 @@ export async function detectJavaRuntimes(): Promise<RuntimeInfo[]> {
   return runtimes.sort((a, b) => b.major - a.major);
 }
 
-export async function selectJavaRuntime(minecraftVersion: string): Promise<RuntimeInfo> {
+export async function selectJavaRuntime(
+  minecraftVersion: string,
+  onStatus?: (message: string) => void
+): Promise<RuntimeInfo> {
   const required = requiredJavaMajor(minecraftVersion);
   const runtimes = await detectJavaRuntimes();
   const exact = runtimes.find((runtime) => runtime.major === required);
   const compatible = runtimes.find((runtime) => runtime.major > required);
   const selected = exact ?? compatible;
-  if (!selected) {
-    throw new Error(`Java ${required} is required for Minecraft ${minecraftVersion}, and no compatible runtime was detected.`);
+  if (selected) {
+    return selected;
   }
-  return selected;
+  // Nothing suitable is installed — provision a Temurin JRE automatically so
+  // end users never have to install Java by hand.
+  return ensureTemurinJre(required, onStatus);
 }
 

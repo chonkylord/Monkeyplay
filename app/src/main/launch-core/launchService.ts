@@ -84,7 +84,9 @@ export async function launchOffline(request: LaunchRequest): Promise<LaunchResul
     const assetIndex = await downloadAssets(baseVersion);
 
     phase(launchId, instance.id, "provisioning-java", "Selecting Java runtime");
-    const java = await selectJavaRuntime(instance.minecraftVersion);
+    const java = await selectJavaRuntime(instance.minecraftVersion, (message) =>
+      phase(launchId, instance.id, "provisioning-java", message)
+    );
 
     phase(
       launchId,

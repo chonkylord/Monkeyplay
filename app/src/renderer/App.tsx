@@ -4,7 +4,6 @@ import {
   Download,
   HardDrive,
   KeyRound,
-  LogIn,
   PackageSearch,
   Plus,
   RefreshCcw,
@@ -42,7 +41,6 @@ export function App() {
     selectInstance,
     setActiveAccount,
     settings,
-    signInMicrosoft,
     totalMemoryMb,
     updateInstance,
     updateSettings,
@@ -259,16 +257,10 @@ export function App() {
               </div>
               <form className="stack-form" onSubmit={handleOfflineAccount}>
                 <input aria-label="Offline username" value={offlineName} onChange={(event) => setOfflineName(event.target.value)} />
-                <div className="button-row">
-                  <button className="secondary-button" type="submit" disabled={busy}>
-                    <KeyRound size={16} />
-                    Add Offline
-                  </button>
-                  <button className="primary-button" type="button" disabled={busy} onClick={() => void signInMicrosoft()}>
-                    <LogIn size={16} />
-                    Microsoft
-                  </button>
-                </div>
+                <button className="primary-button" type="submit" disabled={busy}>
+                  <KeyRound size={16} />
+                  Add Account
+                </button>
               </form>
               <div className="account-list">
                 {accounts.length === 0 ? (
