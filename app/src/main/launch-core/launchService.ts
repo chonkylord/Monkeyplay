@@ -81,7 +81,10 @@ export async function launchOffline(request: LaunchRequest): Promise<LaunchResul
     const libraries = await downloadLibraries(version);
 
     phase(launchId, instance.id, "downloading-assets", "Checking assets");
-    const assetIndex = await downloadAssets(baseVersion);
+    const assetIndex = await downloadAssets(baseVersion, (done, total) => {
+      const pct = total > 0 ? Math.round((done / total) * 100) : 100;
+      phase(launchId, instance.id, "downloading-assets", `Downloading assets ${done}/${total} (${pct}%)`);
+    });
 
     phase(launchId, instance.id, "provisioning-java", "Selecting Java runtime");
     const java = await selectJavaRuntime(instance.minecraftVersion, (message) =>

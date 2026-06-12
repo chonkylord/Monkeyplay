@@ -14,7 +14,6 @@ extraResources:
   - from: build/icon.png
     to: icon.png
 win:
-  signAndEditExecutable: false
   icon: build/icon.ico
   target:
     - nsis

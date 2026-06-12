@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
-    "package": "pnpm build && electron-builder --win nsis"
+    "package": "node scripts/package.mjs"
   },
   "dependencies": {
     "electron-updater": "^6.6.2",
@@ -47,6 +47,7 @@
   "build": {
     "appId": "play.monkey.launcher",
     "productName": "MonkeyPlay",
+    "icon": "build/icon.ico",
     "directories": {
       "output": "release"
     },
@@ -61,9 +62,14 @@
         "filter": [
           "*.jar"
         ]
+      },
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
       }
     ],
     "win": {
+      "icon": "build/icon.ico",
       "signAndEditExecutable": false,
       "target": [
         "nsis"

@@ -48,10 +48,12 @@ export async function downloadFile(url: string, targetPath: string, expectedSha1
   const tempPath = `${targetPath}.download`;
   await rm(tempPath, { force: true });
 
+  // Abort a stalled connection rather than hanging the whole launch forever.
   const response = await fetch(url, {
     headers: {
       "User-Agent": "MonkeyPlay/0.1.0"
-    }
+    },
+    signal: AbortSignal.timeout(60_000)
   });
   if (!response.ok || !response.body) {
     throw new Error(`Download failed (${response.status}) for ${url}`);

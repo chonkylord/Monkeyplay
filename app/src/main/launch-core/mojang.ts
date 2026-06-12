@@ -138,16 +138,45 @@ export async function downloadLibraries(version: VersionJson): Promise<{ classpa
   return { classpath, nativesDir };
 }
 
-export async function downloadAssets(version: VersionJson): Promise<string> {
+/** Run an async task over items with a bounded number of concurrent workers. */
+async function mapWithConcurrency<T>(items: T[], limit: number, task: (item: T) => Promise<void>): Promise<void> {
+  let cursor = 0;
+  const workerCount = Math.max(1, Math.min(limit, items.length));
+  const workers = Array.from({ length: workerCount }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      await task(items[index]);
+    }
+  });
+  await Promise.all(workers);
+}
+
+export async function downloadAssets(
+  version: VersionJson,
+  onProgress?: (done: number, total: number) => void,
+  concurrency = 12
+): Promise<string> {
   const indexPath = join(sharedRoot(), "assets", "indexes", `${version.assetIndex.id}.json`);
   await downloadFile(version.assetIndex.url, indexPath, version.assetIndex.sha1);
   const assetIndex = await fetchJson<AssetIndex>(version.assetIndex.url);
 
-  for (const asset of Object.values(assetIndex.objects)) {
+  const objects = Object.values(assetIndex.objects);
+  const total = objects.length;
+  let done = 0;
+  onProgress?.(0, total);
+
+  // Thousands of small files: download in parallel and report progress so the
+  // UI shows movement instead of appearing frozen on a fresh install.
+  await mapWithConcurrency(objects, concurrency, async (asset) => {
     const prefix = asset.hash.slice(0, 2);
     const objectPath = join(sharedRoot(), "assets", "objects", prefix, asset.hash);
     await downloadFile(`https://resources.download.minecraft.net/${prefix}/${asset.hash}`, objectPath, asset.hash);
-  }
+    done += 1;
+    if (done % 25 === 0 || done === total) {
+      onProgress?.(done, total);
+    }
+  });
 
   return basename(indexPath, ".json");
 }
