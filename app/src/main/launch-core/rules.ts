@@ -18,14 +18,24 @@ function minecraftOsName(): "windows" | "osx" | "linux" {
   return "linux";
 }
 
-export function rulesAllow(rules: Rule[] | undefined): boolean {
+/**
+ * Evaluate Mojang argument/library rules against the current OS and the set of
+ * enabled launch "features". MonkeyPlay enables no optional features, so
+ * feature-gated args (`--demo`, `--quickPlay*`, custom resolution) must be
+ * excluded — otherwise the game boots into the demo world and tries to
+ * quick-play-connect to an empty server. A rule only takes effect when *both*
+ * its OS and feature conditions match; unmatched rules are ignored.
+ */
+export function rulesAllow(rules: Rule[] | undefined, features: Record<string, boolean> = {}): boolean {
   if (!rules || rules.length === 0) {
     return true;
   }
   let allowed = false;
   for (const rule of rules) {
     const osMatches = !rule.os?.name || rule.os.name === minecraftOsName();
-    if (osMatches) {
+    const featuresMatch =
+      !rule.features || Object.entries(rule.features).every(([key, value]) => (features[key] ?? false) === value);
+    if (osMatches && featuresMatch) {
       allowed = rule.action === "allow";
     }
   }

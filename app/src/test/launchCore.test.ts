@@ -73,6 +73,53 @@ describe("argument builder", () => {
     expect(args).toContain("C:/game");
   });
 
+  it("excludes feature-gated args (demo, quick play) that MonkeyPlay never enables", () => {
+    const instance: InstanceProfile = {
+      id: "two",
+      name: "Two",
+      minecraftVersion: "1.21.4",
+      loader: "vanilla",
+      ramMb: 2048,
+      jvmArgs: [],
+      gameDir: "C:/game",
+      createdAt: "now",
+      updatedAt: "now"
+    };
+    const version: VersionJson = {
+      id: "1.21.4",
+      mainClass: "net.minecraft.client.main.Main",
+      assetIndex: { id: "17", url: "https://example.test/assets", sha1: "abc" },
+      downloads: { client: { url: "https://example.test/client.jar" } },
+      libraries: [],
+      arguments: {
+        jvm: [],
+        game: [
+          "--username",
+          "${auth_player_name}",
+          { rules: [{ action: "allow", features: { is_demo_user: true } }], value: "--demo" },
+          {
+            rules: [{ action: "allow", features: { is_quick_play_multiplayer: true } }],
+            value: ["--quickPlayMultiplayer", "${quickPlayMultiplayer}"]
+          }
+        ]
+      }
+    };
+    const args = buildLaunchArguments({
+      version,
+      instance,
+      account: { username: "Player", uuid: "0", accessToken: "0" },
+      classpath: [],
+      clientJar: "C:/client.jar",
+      nativesDir: "C:/natives",
+      assetsRoot: "C:/assets",
+      assetIndex: "17"
+    });
+
+    expect(args).toContain("Player");
+    expect(args).not.toContain("--demo");
+    expect(args).not.toContain("--quickPlayMultiplayer");
+  });
+
   it("keeps the minimum heap at or below the configured maximum", () => {
     const base: InstanceProfile = {
       id: "low",
