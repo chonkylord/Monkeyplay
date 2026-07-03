@@ -1,26 +1,49 @@
 import type {
   AccountProfile,
   CreateInstanceInput,
+  InstalledMod,
   InstanceProfile,
   LaunchEvent,
   LauncherSettings,
   ModrinthProject,
-  RuntimeInfo
+  NewsItem,
+  PresetModStatus,
+  RuntimeInfo,
+  VersionSummary
 } from "@shared/types";
 import { create } from "zustand";
+
+export interface LaunchState {
+  active: boolean;
+  phase?: LaunchEvent["phase"];
+  message?: string;
+  progressPct?: number;
+  failed: boolean;
+}
+
+const idleLaunch: LaunchState = { active: false, failed: false };
 
 interface LauncherState {
   accounts: AccountProfile[];
   instances: InstanceProfile[];
   java: RuntimeInfo[];
   launches: LaunchEvent[];
+  launchState: LaunchState;
   modrinthResults: ModrinthProject[];
+  mods: InstalledMod[];
+  news: NewsItem[];
+  presetStatuses?: PresetModStatus[];
   settings?: LauncherSettings;
   selectedInstanceId?: string;
   totalMemoryMb: number;
+  versions: VersionSummary[];
   busy: boolean;
   error?: string;
+  notice?: string;
   bootstrap: () => Promise<void>;
+  loadVersions: () => Promise<void>;
+  loadNews: () => Promise<void>;
+  loadMods: (instanceId: string) => Promise<void>;
   createInstance: (input: CreateInstanceInput) => Promise<void>;
   updateInstance: (id: string, update: Partial<CreateInstanceInput>) => Promise<void>;
   deleteInstance: (id: string) => Promise<void>;
@@ -29,13 +52,17 @@ interface LauncherState {
   setActiveAccount: (accountId: string) => Promise<void>;
   deleteAccount: (accountId: string) => Promise<void>;
   signInMicrosoft: () => Promise<void>;
-  launchOffline: (instanceId: string, username?: string) => Promise<void>;
+  launchGame: (instanceId: string, serverAddress?: string) => Promise<void>;
   searchModrinth: (query: string, projectType: "mod" | "shader") => Promise<void>;
   installModrinth: (projectId: string, instanceId: string) => Promise<void>;
+  toggleMod: (instanceId: string, fileName: string, enabled: boolean) => Promise<void>;
+  deleteMod: (instanceId: string, fileName: string) => Promise<void>;
+  installFpsBoost: (instanceId: string) => Promise<void>;
+  installCompanion: (instanceId: string) => Promise<void>;
   updateSettings: (settings: Partial<LauncherSettings>) => Promise<void>;
   appendLaunchEvent: (event: LaunchEvent) => void;
   dismissError: () => void;
-  notice?: string;
+  dismissNotice: () => void;
 }
 
 function selectedInstance(instances: InstanceProfile[], selectedInstanceId?: string): string | undefined {
@@ -47,7 +74,11 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
   instances: [],
   java: [],
   launches: [],
+  launchState: idleLaunch,
   modrinthResults: [],
+  mods: [],
+  news: [],
+  versions: [],
   totalMemoryMb: 16384,
   busy: false,
   bootstrap: async () => {
@@ -71,6 +102,31 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
       });
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
+    }
+    // Non-critical extras load after the core state so a slow network never
+    // blocks the launcher from becoming interactive.
+    void get().loadVersions();
+    void get().loadNews();
+  },
+  loadVersions: async () => {
+    try {
+      set({ versions: await window.monkeyplay.versions.list() });
+    } catch {
+      // Offline: the manual version input still works.
+    }
+  },
+  loadNews: async () => {
+    try {
+      set({ news: await window.monkeyplay.news.list() });
+    } catch {
+      // Offline: the news strip simply stays empty.
+    }
+  },
+  loadMods: async (instanceId) => {
+    try {
+      set({ mods: await window.monkeyplay.mods.list(instanceId) });
+    } catch (error) {
+      set({ error: (error as Error).message });
     }
   },
   createInstance: async (input) => {
@@ -114,7 +170,9 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
       set({ error: (error as Error).message, busy: false });
     }
   },
-  selectInstance: (id) => set({ selectedInstanceId: id }),
+  selectInstance: (id) => {
+    set({ selectedInstanceId: id, mods: [], presetStatuses: undefined });
+  },
   setActiveAccount: async (accountId) => {
     set({ busy: true, error: undefined });
     try {
@@ -141,7 +199,7 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
         await window.monkeyplay.system.openExternal(device.verificationUri);
       }
       set({
-        notice: `Microsoft sign-in: enter code ${device.userCode} at ${device.verificationUri}, then this window finishes automatically.`
+        notice: `Microsoft sign-in: enter code ${device.userCode} at ${device.verificationUri} — this finishes automatically.`
       });
       const result = await window.monkeyplay.auth.completeDeviceCode(device.deviceCode);
       const accounts = await window.monkeyplay.accounts.list();
@@ -162,13 +220,15 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
       set({ error: (error as Error).message, busy: false });
     }
   },
-  launchOffline: async (instanceId, username) => {
-    set({ busy: true, error: undefined });
+  launchGame: async (instanceId, serverAddress) => {
+    set({ error: undefined, launchState: { active: true, failed: false, message: "Preparing launch…" } });
     try {
-      await window.monkeyplay.launch.offline({ instanceId, offlineUsername: username });
-      set({ busy: false });
+      await window.monkeyplay.launch.start({ instanceId, serverAddress });
     } catch (error) {
-      set({ error: (error as Error).message, busy: false });
+      set({
+        error: (error as Error).message,
+        launchState: { active: false, failed: true, message: (error as Error).message }
+      });
     }
   },
   searchModrinth: async (query, projectType) => {
@@ -188,7 +248,47 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
     set({ busy: true, error: undefined });
     try {
       await window.monkeyplay.modrinth.install(projectId, instanceId);
-      set({ busy: false });
+      set({ busy: false, notice: "Installed from Modrinth." });
+      await get().loadMods(instanceId);
+    } catch (error) {
+      set({ error: (error as Error).message, busy: false });
+    }
+  },
+  toggleMod: async (instanceId, fileName, enabled) => {
+    try {
+      await window.monkeyplay.mods.setEnabled(instanceId, fileName, enabled);
+      set((state) => ({
+        mods: state.mods.map((mod) => (mod.fileName === fileName ? { ...mod, enabled } : mod))
+      }));
+    } catch (error) {
+      set({ error: (error as Error).message });
+    }
+  },
+  deleteMod: async (instanceId, fileName) => {
+    try {
+      await window.monkeyplay.mods.delete(instanceId, fileName);
+      set((state) => ({ mods: state.mods.filter((mod) => mod.fileName !== fileName) }));
+    } catch (error) {
+      set({ error: (error as Error).message });
+    }
+  },
+  installFpsBoost: async (instanceId) => {
+    set({ busy: true, error: undefined, presetStatuses: undefined });
+    try {
+      const presetStatuses = await window.monkeyplay.mods.installFpsBoost(instanceId);
+      const installed = presetStatuses.filter((item) => item.status === "installed").length;
+      set({ presetStatuses, busy: false, notice: `Performance pack: ${installed}/${presetStatuses.length} mods installed.` });
+      await get().loadMods(instanceId);
+    } catch (error) {
+      set({ error: (error as Error).message, busy: false });
+    }
+  },
+  installCompanion: async (instanceId) => {
+    set({ busy: true, error: undefined });
+    try {
+      await window.monkeyplay.mods.installCompanion(instanceId);
+      set({ busy: false, notice: "MonkeyPlay HUD installed (FPS, CPS, ping, keystrokes overlay)." });
+      await get().loadMods(instanceId);
     } catch (error) {
       set({ error: (error as Error).message, busy: false });
     }
@@ -203,9 +303,24 @@ export const useLauncherStore = create<LauncherState>((set, get) => ({
     }
   },
   appendLaunchEvent: (event) =>
-    set((state) => ({
-      launches: [event, ...state.launches].slice(0, 80)
-    })),
-  dismissError: () => set({ error: undefined })
+    set((state) => {
+      const launches = [event, ...state.launches].slice(0, 120);
+      let launchState: LaunchState = state.launchState;
+      if (event.phase === "failed") {
+        launchState = { active: false, failed: true, phase: event.phase, message: event.message };
+      } else if (event.phase === "exited") {
+        launchState = { active: false, failed: Boolean(event.exitCode), phase: event.phase, message: event.message };
+      } else {
+        launchState = {
+          active: true,
+          failed: false,
+          phase: event.phase,
+          message: event.message,
+          progressPct: event.progressPct ?? (event.phase === "running" ? 100 : undefined)
+        };
+      }
+      return { launches, launchState };
+    }),
+  dismissError: () => set({ error: undefined }),
+  dismissNotice: () => set({ notice: undefined })
 }));
-

@@ -1,5 +1,44 @@
 # MonkeyPlay Build Log
 
+## 2026-07-03 — Lunar-style client overhaul (macOS session)
+
+- **UI rebuilt in a Lunar Client style**: frameless window (native traffic lights on
+  macOS via `hiddenInset`, custom minimize/maximize/close elsewhere), icon sidebar with
+  five pages (Home / Instances / Mods / News / Settings), top-right account chip with
+  mc-heads avatars, and a home hero with instance dropdown, big LAUNCH button, quick-join
+  field, and a live progress bar. Pixel fonts/Google Fonts removed (system font stack —
+  fully offline-capable renderer).
+- **Launch core**: unified `launch()` replaces `launchOffline` — an active Microsoft
+  account launches authenticated via silent refresh-token renewal (`refreshMinecraftSession`:
+  refresh grant → XBL → XSTS → login_with_xbox → profile, refresh token re-stored via
+  safeStorage); everyone else launches offline. `LaunchEvent` gained `progressPct`;
+  library downloads now report progress like assets.
+- **Quick join**: `serverAddress` per instance + per-launch override. Modern versions get
+  the feature-gated `--quickPlayMultiplayer` argument (detected from the version JSON's
+  rules), pre-1.20 falls back to `--server/--port`.
+- **Version picker**: `versions:list` IPC serves the (5-min-cached) Mojang manifest;
+  Instances page offers releases with an opt-in snapshots toggle.
+- **Mod manager** (`mods/modService.ts`): list/toggle (`.jar` ↔ `.jar.disabled`)/delete
+  jars per instance; path-traversal guarded. **Performance pack**: one click installs
+  Sodium, Lithium, FerriteCore, Entity Culling, ImmediatelyFast, Krypton, Dynamic FPS,
+  ModernFix, Iris from Modrinth (all slugs verified against the API; per-mod failures are
+  reported as "skipped", not fatal). **Install HUD** copies the bundled companion jar and
+  pulls fabric-api.
+- **News**: `news:list` IPC maps `launchercontent.mojang.com/v2/javaPatchNotes.json`
+  (10-min cache) into home-strip and News-page cards.
+- **Fixed** a renderer freeze the new smoke test caught: `loadMods` was recreated on every
+  store change, so the ModsPage effect re-ran forever; page callbacks now use
+  `useLauncherStore.getState()` for stable identities.
+- **Checks (all passing on macOS)**: typecheck, lint, vitest 22 tests (quick-join arg
+  building, news mapping, mod toggle fs behavior, preset dedupe + existing suites),
+  24-point Playwright renderer smoke (`release/smoke.png`), and a real-Electron boot
+  check — window opens, IPC round-trips, live manifest fetch returned 900 versions
+  (`release/electron-smoke.png`). Note: in VSCode-extension shells `ELECTRON_RUN_AS_NODE`
+  must be unset or Electron runs as plain Node.
+- **Not done here** (see `humanwork.md`): Azure client id + Mojang API approval for
+  Microsoft sign-in, companion-mod Gradle build (no JDK on this Mac), code
+  signing/notarization, real update-feed URL, real-hardware launch test.
+
 ## 2026-06-11
 
 ### M0 - Environment Bring-Up

@@ -64,6 +64,7 @@ export async function createInstance(input: CreateInstanceInput): Promise<Instan
     loader: input.loader,
     ramMb: input.ramMb ?? settings.defaultRamMb,
     jvmArgs: input.jvmArgs ?? settings.defaultJvmArgs,
+    ...(input.serverAddress ? { serverAddress: input.serverAddress } : {}),
     gameDir,
     createdAt: now,
     updatedAt: now

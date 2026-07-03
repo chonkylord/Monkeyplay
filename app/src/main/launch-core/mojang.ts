@@ -22,6 +22,7 @@ interface VersionManifest {
     type: string;
     url: string;
     sha1: string;
+    releaseTime?: string;
   }>;
 }
 
@@ -90,8 +91,26 @@ async function fetchJson<T>(url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+let manifestCache: { manifest: VersionManifest; fetchedAt: number } | undefined;
+
 export async function getVersionManifest(): Promise<VersionManifest> {
-  return fetchJson<VersionManifest>(manifestUrl);
+  // The manifest is fetched on every version-picker open and every launch;
+  // cache it briefly so the UI stays snappy and Mojang isn't hammered.
+  if (manifestCache && Date.now() - manifestCache.fetchedAt < 5 * 60_000) {
+    return manifestCache.manifest;
+  }
+  const manifest = await fetchJson<VersionManifest>(manifestUrl);
+  manifestCache = { manifest, fetchedAt: Date.now() };
+  return manifest;
+}
+
+export async function listVersions(): Promise<Array<{ id: string; type: string; releaseTime: string }>> {
+  const manifest = await getVersionManifest();
+  return manifest.versions.map((version) => ({
+    id: version.id,
+    type: version.type,
+    releaseTime: (version as { releaseTime?: string }).releaseTime ?? ""
+  }));
 }
 
 export async function resolveVersion(versionId: string): Promise<VersionJson> {
@@ -111,15 +130,19 @@ export async function downloadClientJar(version: VersionJson): Promise<string> {
   return targetPath;
 }
 
-export async function downloadLibraries(version: VersionJson): Promise<{ classpath: string[]; nativesDir: string }> {
+export async function downloadLibraries(
+  version: VersionJson,
+  onProgress?: (done: number, total: number) => void
+): Promise<{ classpath: string[]; nativesDir: string }> {
   const classpath: string[] = [];
   const nativesDir = join(sharedRoot(), "natives", version.id, process.platform);
   await mkdir(nativesDir, { recursive: true });
 
-  for (const library of version.libraries) {
-    if (!rulesAllow(library.rules)) {
-      continue;
-    }
+  const allowed = version.libraries.filter((library) => rulesAllow(library.rules));
+  let done = 0;
+  onProgress?.(0, allowed.length);
+
+  for (const library of allowed) {
     const artifact = library.downloads?.artifact;
     if (artifact?.path) {
       const targetPath = join(sharedRoot(), "libraries", artifact.path);
@@ -132,6 +155,10 @@ export async function downloadLibraries(version: VersionJson): Promise<{ classpa
       const nativePath = join(sharedRoot(), "libraries", nativeArtifact.path);
       await downloadFile(nativeArtifact.url, nativePath, nativeArtifact.sha1);
       await extract(nativePath, { dir: nativesDir });
+    }
+    done += 1;
+    if (done % 10 === 0 || done === allowed.length) {
+      onProgress?.(done, allowed.length);
     }
   }
 

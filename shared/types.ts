@@ -30,6 +30,8 @@ export interface InstanceProfile {
   ramMb: number;
   jvmArgs: string[];
   gameDir: string;
+  /** Optional server to quick-join on launch, e.g. "play.example.net:25565". */
+  serverAddress?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,12 +42,15 @@ export interface CreateInstanceInput {
   loader: LoaderType;
   ramMb?: number;
   jvmArgs?: string[];
+  serverAddress?: string;
 }
 
 export interface LaunchRequest {
   instanceId: string;
   accountId?: string;
   offlineUsername?: string;
+  /** Overrides the instance's stored quick-join server for this launch. */
+  serverAddress?: string;
 }
 
 export type LaunchPhase =
@@ -67,6 +72,8 @@ export interface LaunchEvent {
   message: string;
   timestamp: string;
   exitCode?: number | null;
+  /** 0-100 progress within the current phase, when the phase can measure it. */
+  progressPct?: number;
 }
 
 export interface LaunchResult {
@@ -99,5 +106,34 @@ export interface RuntimeInfo {
   path: string;
   major: number;
   source: "java-home" | "path" | "bundled";
+}
+
+export interface VersionSummary {
+  id: string;
+  type: "release" | "snapshot" | "old_beta" | "old_alpha";
+  releaseTime: string;
+}
+
+export interface InstalledMod {
+  fileName: string;
+  enabled: boolean;
+  sizeBytes: number;
+}
+
+export interface PresetModStatus {
+  slug: string;
+  name: string;
+  status: "installed" | "skipped";
+  detail?: string;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  version: string;
+  category: string;
+  date: string;
+  imageUrl?: string;
+  shortText: string;
 }
 

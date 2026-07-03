@@ -16,9 +16,11 @@ export interface LaunchArgumentsInput {
   assetIndex: string;
   launcherName?: string;
   launcherVersion?: string;
+  /** When set, the game connects straight to this server after boot. */
+  quickPlayServer?: string;
 }
 
-function flattenArguments(parts: ArgumentPart[] | undefined): string[] {
+function flattenArguments(parts: ArgumentPart[] | undefined, features: Record<string, boolean> = {}): string[] {
   if (!parts) {
     return [];
   }
@@ -28,12 +30,28 @@ function flattenArguments(parts: ArgumentPart[] | undefined): string[] {
       output.push(part);
       continue;
     }
-    if (!rulesAllow(part.rules)) {
+    if (!rulesAllow(part.rules, features)) {
       continue;
     }
     output.push(...(Array.isArray(part.value) ? part.value : [part.value]));
   }
   return output;
+}
+
+/** Split "host[:port]" into its parts; Minecraft's default port is 25565. */
+export function parseServerAddress(address: string): { host: string; port: string } {
+  const [host, port] = address.trim().split(":");
+  return { host, port: port && /^\d+$/.test(port) ? port : "25565" };
+}
+
+/**
+ * 1.20+ version JSONs declare quick play as a feature-gated game argument;
+ * older versions predate it and use the classic `--server`/`--port` flags.
+ */
+export function supportsQuickPlay(version: VersionJson): boolean {
+  return (version.arguments?.game ?? []).some(
+    (part) => typeof part !== "string" && part.rules?.some((rule) => rule.features?.is_quick_play_multiplayer)
+  );
 }
 
 function replaceTokens(value: string, replacements: Record<string, string>): string {
@@ -42,6 +60,8 @@ function replaceTokens(value: string, replacements: Record<string, string>): str
 
 export function buildLaunchArguments(input: LaunchArgumentsInput): string[] {
   const classpath = [...input.classpath, input.clientJar].join(delimiter);
+  const quickPlay = input.quickPlayServer?.trim() ? input.quickPlayServer.trim() : undefined;
+  const useQuickPlayArg = quickPlay !== undefined && supportsQuickPlay(input.version);
   const replacements: Record<string, string> = {
     auth_player_name: input.account.username,
     version_name: input.version.id,
@@ -55,13 +75,23 @@ export function buildLaunchArguments(input: LaunchArgumentsInput): string[] {
     natives_directory: input.nativesDir,
     launcher_name: input.launcherName ?? "MonkeyPlay",
     launcher_version: input.launcherVersion ?? "0.1.0",
-    classpath
+    classpath,
+    ...(useQuickPlayArg ? { quickPlayMultiplayer: quickPlay } : {})
   };
 
-  const jvmArgs = flattenArguments(input.version.arguments?.jvm);
+  const features: Record<string, boolean> = useQuickPlayArg ? { is_quick_play_multiplayer: true } : {};
+  const jvmArgs = flattenArguments(input.version.arguments?.jvm, features);
   const gameArgs = input.version.minecraftArguments
     ? input.version.minecraftArguments.split(" ")
-    : flattenArguments(input.version.arguments?.game);
+    : flattenArguments(input.version.arguments?.game, features);
+
+  // Versions that predate quick play (pre-1.20) join servers with the classic
+  // --server/--port flags instead.
+  const legacyJoinArgs: string[] = [];
+  if (quickPlay && !useQuickPlayArg) {
+    const { host, port } = parseServerAddress(quickPlay);
+    legacyJoinArgs.push("--server", host, "--port", port);
+  }
 
   // Pre-allocate a sane minimum heap so the JVM does not spend the first
   // seconds growing the heap, while never exceeding the configured maximum.
@@ -73,7 +103,8 @@ export function buildLaunchArguments(input: LaunchArgumentsInput): string[] {
     `-Xmx${input.instance.ramMb}M`,
     ...jvmArgs.map((arg) => replaceTokens(arg, replacements)),
     input.version.mainClass,
-    ...gameArgs.map((arg) => replaceTokens(arg, replacements))
+    ...gameArgs.map((arg) => replaceTokens(arg, replacements)),
+    ...legacyJoinArgs
   ].filter(Boolean);
 }
 

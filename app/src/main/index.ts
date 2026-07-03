@@ -36,7 +36,10 @@ function createWindow(): void {
     minWidth: 1040,
     minHeight: 680,
     title: "MonkeyPlay",
-    backgroundColor: "#1a1d22",
+    backgroundColor: "#0d1117",
+    // Frameless chrome: macOS keeps its inset traffic lights, other platforms
+    // get custom window controls rendered in the renderer titlebar.
+    ...(process.platform === "darwin" ? { titleBarStyle: "hiddenInset" as const } : { frame: false }),
     ...(icon ? { icon } : {}),
     show: false,
     webPreferences: {

@@ -6,9 +6,20 @@ import { createOfflineAccount, deleteAccount, listAccounts, setActiveAccount } f
 import { completeDeviceCode, requestDeviceCode } from "../auth/microsoftAuth";
 import { createInstance, deleteInstance, getInstance, listInstances, updateInstance } from "../instances/instanceService";
 import { detectJavaRuntimes } from "../java/javaService";
-import { launchOffline, onLaunchEvent } from "../launch-core/launchService";
+import { launch, onLaunchEvent } from "../launch-core/launchService";
+import { listVersions } from "../launch-core/mojang";
+import { deleteMod, installCompanionMod, installFpsBoost, listMods, setModEnabled } from "../mods/modService";
 import { installProject, searchProjects } from "../modrinth/modrinthClient";
+import { getNews } from "../news/newsService";
 import { getSettings, updateSettings } from "../settings/settingsService";
+
+async function requireInstance(instanceId: string) {
+  const instance = await getInstance(instanceId);
+  if (!instance) {
+    throw new Error(`Instance not found: ${instanceId}`);
+  }
+  return instance;
+}
 
 export function registerIpc(window: BrowserWindow): void {
   onLaunchEvent((event) => {
@@ -25,7 +36,7 @@ export function registerIpc(window: BrowserWindow): void {
   ipcMain.handle("instances:update", (_event, id: string, update: Partial<CreateInstanceInput>) => updateInstance(id, update));
   ipcMain.handle("instances:delete", (_event, id: string) => deleteInstance(id));
 
-  ipcMain.handle("launch:offline", (_event, request: LaunchRequest) => launchOffline(request));
+  ipcMain.handle("launch:start", (_event, request: LaunchRequest) => launch(request));
 
   ipcMain.handle("accounts:list", () => listAccounts());
   ipcMain.handle("accounts:createOffline", (_event, username: string) => createOfflineAccount(username));
@@ -34,17 +45,36 @@ export function registerIpc(window: BrowserWindow): void {
   ipcMain.handle("auth:deviceCode", () => requestDeviceCode());
   ipcMain.handle("auth:completeDeviceCode", (_event, deviceCode: string) => completeDeviceCode(deviceCode));
 
+  ipcMain.handle("versions:list", () => listVersions());
+  ipcMain.handle("news:list", () => getNews());
+
   ipcMain.handle("modrinth:search", (_event, query: string, projectType: "mod" | "shader") => searchProjects(query, projectType));
-  ipcMain.handle("modrinth:install", async (_event, projectId: string, instanceId: string) => {
-    const instance = await getInstance(instanceId);
-    if (!instance) {
-      throw new Error(`Instance not found: ${instanceId}`);
-    }
-    return installProject(projectId, instance);
-  });
+  ipcMain.handle("modrinth:install", async (_event, projectId: string, instanceId: string) =>
+    installProject(projectId, await requireInstance(instanceId))
+  );
+
+  ipcMain.handle("mods:list", async (_event, instanceId: string) => listMods(await requireInstance(instanceId)));
+  ipcMain.handle("mods:setEnabled", async (_event, instanceId: string, fileName: string, enabled: boolean) =>
+    setModEnabled(await requireInstance(instanceId), fileName, enabled)
+  );
+  ipcMain.handle("mods:delete", async (_event, instanceId: string, fileName: string) =>
+    deleteMod(await requireInstance(instanceId), fileName)
+  );
+  ipcMain.handle("mods:installFpsBoost", async (_event, instanceId: string) =>
+    installFpsBoost(await requireInstance(instanceId))
+  );
+  ipcMain.handle("mods:installCompanion", async (_event, instanceId: string) =>
+    installCompanionMod(await requireInstance(instanceId))
+  );
 
   ipcMain.handle("system:java", () => detectJavaRuntimes());
   ipcMain.handle("system:totalMemoryMb", () => Math.floor(totalmem() / (1024 * 1024)));
   ipcMain.handle("system:openExternal", (_event, url: string) => shell.openExternal(url));
-}
+  ipcMain.handle("system:openPath", async (_event, path: string) => {
+    await shell.openPath(path);
+  });
 
+  ipcMain.handle("window:minimize", () => window.minimize());
+  ipcMain.handle("window:toggleMaximize", () => (window.isMaximized() ? window.unmaximize() : window.maximize()));
+  ipcMain.handle("window:close", () => window.close());
+}

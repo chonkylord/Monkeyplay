@@ -1,5 +1,5 @@
 import type { InstanceProfile } from "@shared/types";
-import { Cpu, Gauge, Play, Trash2 } from "lucide-react";
+import { Cpu, FolderOpen, Gauge, Globe, Play, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface InstanceCardProps {
@@ -10,18 +10,39 @@ interface InstanceCardProps {
   onSelect: () => void;
   onLaunch: () => void;
   onChangeRam: (ramMb: number) => void;
+  onChangeServer: (serverAddress: string) => void;
   onDelete: () => void;
+  onOpenFolder: () => void;
 }
 
-export function InstanceCard({ instance, selected, busy, maxRamMb, onSelect, onLaunch, onChangeRam, onDelete }: InstanceCardProps) {
+export function InstanceCard({
+  instance,
+  selected,
+  busy,
+  maxRamMb,
+  onSelect,
+  onLaunch,
+  onChangeRam,
+  onChangeServer,
+  onDelete,
+  onOpenFolder
+}: InstanceCardProps) {
   const [ram, setRam] = useState(instance.ramMb);
+  const [server, setServer] = useState(instance.serverAddress ?? "");
 
-  // Keep the slider in sync when the persisted value changes underneath us.
+  // Keep the local inputs in sync when persisted values change underneath us.
   useEffect(() => setRam(instance.ramMb), [instance.ramMb]);
+  useEffect(() => setServer(instance.serverAddress ?? ""), [instance.serverAddress]);
 
   function commitRam(): void {
     if (ram !== instance.ramMb) {
       onChangeRam(ram);
+    }
+  }
+
+  function commitServer(): void {
+    if (server.trim() !== (instance.serverAddress ?? "")) {
+      onChangeServer(server.trim());
     }
   }
 
@@ -36,6 +57,17 @@ export function InstanceCard({ instance, selected, busy, maxRamMb, onSelect, onL
         </div>
         <div className="instance-card-actions">
           <button
+            className="icon-button"
+            type="button"
+            aria-label={`Open folder for ${instance.name}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpenFolder();
+            }}
+          >
+            <FolderOpen size={15} />
+          </button>
+          <button
             className="icon-button danger"
             type="button"
             aria-label={`Delete ${instance.name}`}
@@ -45,10 +77,10 @@ export function InstanceCard({ instance, selected, busy, maxRamMb, onSelect, onL
             }}
             disabled={busy}
           >
-            <Trash2 size={16} />
+            <Trash2 size={15} />
           </button>
           <button
-            className="icon-button"
+            className="icon-button accent"
             type="button"
             aria-label={`Launch ${instance.name}`}
             onClick={(event) => {
@@ -57,7 +89,7 @@ export function InstanceCard({ instance, selected, busy, maxRamMb, onSelect, onL
             }}
             disabled={busy}
           >
-            <Play size={18} />
+            <Play size={16} />
           </button>
         </div>
       </div>
@@ -81,9 +113,20 @@ export function InstanceCard({ instance, selected, busy, maxRamMb, onSelect, onL
         />
       </label>
 
+      <label className="server-control" onClick={(event) => event.stopPropagation()}>
+        <Globe size={13} />
+        <input
+          aria-label={`Default server for ${instance.name}`}
+          placeholder="Auto-join server (optional)"
+          value={server}
+          onChange={(event) => setServer(event.target.value)}
+          onBlur={commitServer}
+        />
+      </label>
+
       <div className="metric-row">
         <span>
-          <Cpu size={14} />
+          <Cpu size={13} />
           Java {instance.javaMajor ?? "auto"}
         </span>
         <span>{instance.jvmArgs.length} JVM args</span>
