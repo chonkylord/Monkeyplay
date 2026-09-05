@@ -98,15 +98,23 @@ export async function ensureTemurinJre(major: 8 | 17 | 21, onStatus?: (message: 
 
   onStatus?.(`Installing Java ${major} runtime…`);
   await mkdir(dest, { recursive: true });
-  if (extension === "zip") {
-    await extract(archive, { dir: dest });
-  } else {
-    await extractTarGz(archive, dest);
+  try {
+    if (extension === "zip") {
+      await extract(archive, { dir: dest });
+    } else {
+      await extractTarGz(archive, dest);
+    }
+  } catch (error) {
+    // Clean partial extraction so the next launch retries instead of reusing a broken runtime.
+    await rm(dest, { recursive: true, force: true });
+    await rm(archive, { force: true });
+    throw error;
   }
   await rm(archive, { force: true });
 
   const javaPath = await findJavaBinary(dest);
   if (!javaPath) {
+    await rm(dest, { recursive: true, force: true });
     throw new Error(`Downloaded Temurin ${major} runtime but could not locate its java executable.`);
   }
   onStatus?.(`Java ${major} runtime ready.`);

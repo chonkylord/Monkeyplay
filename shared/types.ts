@@ -137,3 +137,42 @@ export interface NewsItem {
   shortText: string;
 }
 
+export interface ServerStatus {
+  address: string;
+  host: string;
+  port: number;
+  online: boolean;
+  latencyMs?: number;
+  version?: { name: string; protocol: number };
+  players?: { online: number; max: number; sample?: Array<{ name: string; id: string }> };
+  motd?: string;
+  motdRaw?: unknown;
+  favicon?: string;
+  description?: string;
+  error?: string;
+  /** Resolved host when SRV record was used */
+  resolvedHost?: string;
+  resolvedPort?: number;
+  /** Network origin (publicly resolvable) */
+  ip?: string;
+  reverseDns?: string;
+  geo?: {
+    country?: string;
+    countryCode?: string;
+    regionName?: string;
+    city?: string;
+    zip?: string;
+    lat?: number;
+    lon?: number;
+    timezone?: string;
+    isp?: string;
+    org?: string;
+    as?: string;
+    query?: string;
+  };
+  /** Hardware requires server-side opt-in (see note below) */
+  hardware?: {
+    note: string;
+  };
+}
+

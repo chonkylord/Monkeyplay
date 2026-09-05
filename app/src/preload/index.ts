@@ -13,6 +13,7 @@ import type {
   NewsItem,
   PresetModStatus,
   RuntimeInfo,
+  ServerStatus,
   VersionSummary
 } from "@shared/types";
 
@@ -73,6 +74,9 @@ const api = {
     openExternal: (url: string) => ipcRenderer.invoke("system:openExternal", url) as Promise<void>,
     openPath: (path: string) => ipcRenderer.invoke("system:openPath", path) as Promise<void>,
     platform: process.platform
+  },
+  server: {
+    ping: (address: string) => ipcRenderer.invoke("server:ping", address) as Promise<ServerStatus>
   },
   window: {
     minimize: () => ipcRenderer.invoke("window:minimize") as Promise<void>,

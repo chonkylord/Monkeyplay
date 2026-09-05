@@ -2,6 +2,7 @@ import type { InstanceProfile, NewsItem } from "@shared/types";
 import { ChevronDown, Globe, Play, RotateCw } from "lucide-react";
 import { useState } from "react";
 import type { LaunchState } from "../store/useLauncherStore";
+import { ServerSpecs } from "../components/ServerSpecs";
 
 interface HomePageProps {
   instances: InstanceProfile[];
@@ -96,6 +97,7 @@ export function HomePage({
             disabled={launching}
           />
         </label>
+        {server.trim() ? <ServerSpecs address={server} /> : null}
 
         {launchState.phase || launchState.message ? (
           <div className={`launch-status ${launchState.failed ? "launch-status-failed" : ""}`}>

@@ -1,5 +1,5 @@
 import { createRequire } from "node:module";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { sharedRoot } from "../paths";
 import { downloadFile } from "./download";
@@ -93,15 +93,42 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 let manifestCache: { manifest: VersionManifest; fetchedAt: number } | undefined;
 
+function manifestDiskPath(): string {
+  return join(sharedRoot(), "versions", "version_manifest_v2.json");
+}
+
 export async function getVersionManifest(): Promise<VersionManifest> {
   // The manifest is fetched on every version-picker open and every launch;
   // cache it briefly so the UI stays snappy and Mojang isn't hammered.
   if (manifestCache && Date.now() - manifestCache.fetchedAt < 5 * 60_000) {
     return manifestCache.manifest;
   }
-  const manifest = await fetchJson<VersionManifest>(manifestUrl);
-  manifestCache = { manifest, fetchedAt: Date.now() };
-  return manifest;
+  try {
+    const manifest = await fetchJson<VersionManifest>(manifestUrl);
+    manifestCache = { manifest, fetchedAt: Date.now() };
+    // Persist to disk so offline launches can reuse the last manifest.
+    try {
+      await mkdir(join(sharedRoot(), "versions"), { recursive: true });
+      const { writeFile } = await import("node:fs/promises");
+      await writeFile(manifestDiskPath(), JSON.stringify(manifest), "utf8");
+    } catch {
+      // best-effort cache
+    }
+    return manifest;
+  } catch (error) {
+    // Offline fallback: try in-memory cache, then disk cache.
+    if (manifestCache) {
+      return manifestCache.manifest;
+    }
+    try {
+      const raw = await readFile(manifestDiskPath(), "utf8");
+      const manifest = JSON.parse(raw) as VersionManifest;
+      manifestCache = { manifest, fetchedAt: Date.now() };
+      return manifest;
+    } catch {
+      throw error;
+    }
+  }
 }
 
 export async function listVersions(): Promise<Array<{ id: string; type: string; releaseTime: string }>> {
@@ -121,7 +148,13 @@ export async function resolveVersion(versionId: string): Promise<VersionJson> {
   }
   const targetPath = join(sharedRoot(), "versions", versionId, `${versionId}.json`);
   await downloadFile(entry.url, targetPath, entry.sha1);
-  return fetchJson<VersionJson>(entry.url);
+  // Prefer the cached file so offline launches work; fall back to network.
+  try {
+    const raw = await readFile(targetPath, "utf8");
+    return JSON.parse(raw) as VersionJson;
+  } catch {
+    return fetchJson<VersionJson>(entry.url);
+  }
 }
 
 export async function downloadClientJar(version: VersionJson): Promise<string> {
@@ -170,9 +203,10 @@ async function mapWithConcurrency<T>(items: T[], limit: number, task: (item: T) 
   let cursor = 0;
   const workerCount = Math.max(1, Math.min(limit, items.length));
   const workers = Array.from({ length: workerCount }, async () => {
-    while (cursor < items.length) {
+    while (true) {
       const index = cursor;
       cursor += 1;
+      if (index >= items.length) break;
       await task(items[index]);
     }
   });
@@ -186,7 +220,13 @@ export async function downloadAssets(
 ): Promise<string> {
   const indexPath = join(sharedRoot(), "assets", "indexes", `${version.assetIndex.id}.json`);
   await downloadFile(version.assetIndex.url, indexPath, version.assetIndex.sha1);
-  const assetIndex = await fetchJson<AssetIndex>(version.assetIndex.url);
+  let assetIndex: AssetIndex;
+  try {
+    const raw = await readFile(indexPath, "utf8");
+    assetIndex = JSON.parse(raw) as AssetIndex;
+  } catch {
+    assetIndex = await fetchJson<AssetIndex>(version.assetIndex.url);
+  }
 
   const objects = Object.values(assetIndex.objects);
   const total = objects.length;

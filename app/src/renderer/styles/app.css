@@ -715,6 +715,219 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+/* ---------- Server specs ---------- */
+
+.server-specs {
+  max-width: 520px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+}
+
+.server-specs-compact {
+  max-width: none;
+  margin-top: 8px;
+  padding: 10px 12px;
+}
+
+.server-specs-online {
+  border-color: rgba(25, 210, 102, 0.28);
+  background: linear-gradient(150deg, #17202e 0%, #131a26 100%);
+}
+
+.server-specs-offline {
+  border-color: rgba(229, 83, 75, 0.28);
+}
+
+.server-specs-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.server-specs-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  image-rendering: pixelated;
+  flex: 0 0 36px;
+  object-fit: cover;
+}
+
+.server-specs-icon-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: var(--sunken);
+  border: 1px solid var(--line-soft);
+}
+
+.server-specs-title {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.server-specs-title strong {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-specs-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-specs-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.server-specs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  color: var(--muted);
+  background: var(--sunken);
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.server-specs-chip-warn {
+  color: #f0b429;
+  background: rgba(240, 180, 41, 0.12);
+}
+
+.server-specs-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.server-specs-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+}
+
+.server-specs-row .badge-offline {
+  color: #ffd9d4;
+  background: var(--danger-soft);
+  border: 1px solid rgba(229, 83, 75, 0.35);
+  margin-left: auto;
+}
+
+.server-specs-error {
+  margin: 6px 0 0;
+  color: #f0a49e;
+  font-size: 11.5px;
+}
+
+.server-specs-origin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.server-specs-sample {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-specs-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.server-specs-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.server-specs-hardware {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #c9a84a;
+  background: rgba(240, 180, 41, 0.08);
+  border: 1px solid rgba(240, 180, 41, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.server-specs-hint {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.server-specs-hint code {
+  padding: 1px 4px;
+  background: var(--sunken);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.server-specs-maplink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 7px;
+  min-height: 22px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.server-specs-maplink:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
 /* ---------- News ---------- */
 
 .news-strip {

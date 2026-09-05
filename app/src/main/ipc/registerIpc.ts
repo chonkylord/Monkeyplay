@@ -8,6 +8,7 @@ import { createInstance, deleteInstance, getInstance, listInstances, updateInsta
 import { detectJavaRuntimes } from "../java/javaService";
 import { launch, onLaunchEvent } from "../launch-core/launchService";
 import { listVersions } from "../launch-core/mojang";
+import { pingServer } from "../server/serverPing";
 import { deleteMod, installCompanionMod, installFpsBoost, listMods, setModEnabled } from "../mods/modService";
 import { installProject, searchProjects } from "../modrinth/modrinthClient";
 import { getNews } from "../news/newsService";
@@ -47,6 +48,7 @@ export function registerIpc(window: BrowserWindow): void {
 
   ipcMain.handle("versions:list", () => listVersions());
   ipcMain.handle("news:list", () => getNews());
+  ipcMain.handle("server:ping", (_event, address: string) => pingServer(address));
 
   ipcMain.handle("modrinth:search", (_event, query: string, projectType: "mod" | "shader") => searchProjects(query, projectType));
   ipcMain.handle("modrinth:install", async (_event, projectId: string, instanceId: string) =>

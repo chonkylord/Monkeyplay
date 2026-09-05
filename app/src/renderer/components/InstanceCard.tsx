@@ -1,6 +1,7 @@
 import type { InstanceProfile } from "@shared/types";
 import { Cpu, FolderOpen, Gauge, Globe, Play, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ServerSpecs } from "./ServerSpecs";
 
 interface InstanceCardProps {
   instance: InstanceProfile;
@@ -123,6 +124,15 @@ export function InstanceCard({
           onBlur={commitServer}
         />
       </label>
+      {instance.serverAddress?.trim() ? (
+        <div onClick={(e) => e.stopPropagation()}>
+          <ServerSpecs address={instance.serverAddress} compact />
+        </div>
+      ) : server.trim() && server.trim() !== instance.serverAddress ? (
+        <div onClick={(e) => e.stopPropagation()}>
+          <ServerSpecs address={server} compact />
+        </div>
+      ) : null}
 
       <div className="metric-row">
         <span>

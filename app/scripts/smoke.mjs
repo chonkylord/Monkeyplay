@@ -84,6 +84,7 @@ window.monkeyplay = (() => {
       installFpsBoost: async () => ([{ slug: "sodium", name: "Sodium", status: "installed" }, { slug: "iris", name: "Iris", status: "skipped", detail: "no build" }]),
       installCompanion: async () => "/g/mods/monkeyplay-companion.jar"
     },
+    server: { ping: async (address) => ({ address, host: address.split(":")[0], port: Number(address.split(":")[1] || 25565), online: true, version: { name: "1.21.4", protocol: 769 }, players: { online: 42, max: 100, sample: [{ name: "Steve", id: "0" }] }, motd: "Test Server", favicon: undefined, latencyMs: 42, resolvedHost: address.split(":")[0], resolvedPort: Number(address.split(":")[1] || 25565) }) },
     system: { java: async () => ([{ path: "/usr/bin/java", major: 21, source: "path" }]), totalMemoryMb: async () => 32768, openExternal: async () => noop, openPath: async () => noop, platform: "win32" },
     window: { minimize: async () => noop, toggleMaximize: async () => noop, close: async () => noop }
   };

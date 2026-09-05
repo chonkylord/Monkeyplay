@@ -81,8 +81,12 @@ export async function launch(request: LaunchRequest): Promise<LaunchResult> {
 
   const launchId = randomUUID();
   await mkdir(logsRoot(), { recursive: true });
+  // Ensure the instance directory is intact (user may have deleted it or it was on a removable drive).
+  await mkdir(instance.gameDir, { recursive: true });
+  await mkdir(join(instance.gameDir, "mods"), { recursive: true });
   const logPath = join(logsRoot(), `${launchId}.log`);
   const log = createWriteStream(logPath, { flags: "a" });
+  log.on("error", (error) => console.error("[MonkeyPlay] log stream error", error));
 
   try {
     phase(launchId, instance.id, "queued", "Preparing account session");
@@ -154,8 +158,8 @@ export async function launch(request: LaunchRequest): Promise<LaunchResult> {
       env: process.env
     });
 
-    child.stdout.pipe(log, { end: false });
-    child.stderr.pipe(log, { end: false });
+    child.stdout?.pipe(log, { end: false });
+    child.stderr?.pipe(log, { end: false });
     phase(launchId, instance.id, "running", `Minecraft started with pid ${child.pid ?? "unknown"}`);
 
     child.once("exit", (code) => {
