@@ -62,6 +62,7 @@ export function buildLaunchArguments(input: LaunchArgumentsInput): string[] {
   const classpath = [...input.classpath, input.clientJar].join(delimiter);
   const quickPlay = input.quickPlayServer?.trim() ? input.quickPlayServer.trim() : undefined;
   const useQuickPlayArg = quickPlay !== undefined && supportsQuickPlay(input.version);
+  const isOffline = input.account.accessToken === "0" || input.account.accessToken === "";
   const replacements: Record<string, string> = {
     auth_player_name: input.account.username,
     version_name: input.version.id,
@@ -70,7 +71,7 @@ export function buildLaunchArguments(input: LaunchArgumentsInput): string[] {
     assets_index_name: input.assetIndex,
     auth_uuid: input.account.uuid.replace(/-/g, ""),
     auth_access_token: input.account.accessToken,
-    user_type: "msa",
+    user_type: isOffline ? "legacy" : "msa",
     version_type: "release",
     natives_directory: input.nativesDir,
     launcher_name: input.launcherName ?? "MonkeyPlay",

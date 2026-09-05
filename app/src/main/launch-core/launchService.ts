@@ -65,8 +65,14 @@ async function resolveSession(request: LaunchRequest): Promise<LaunchSession> {
     : accounts.find((item) => item.active);
 
   if (account?.type === "microsoft") {
-    const session = await refreshMinecraftSession(account.id);
-    return { username: session.username, uuid: session.uuid, accessToken: session.accessToken };
+    try {
+      const session = await refreshMinecraftSession(account.id);
+      return { username: session.username, uuid: session.uuid, accessToken: session.accessToken };
+    } catch (error) {
+      console.warn(`[MonkeyPlay] Microsoft session refresh failed for ${account.username}, falling back to offline:`, error);
+      const username = sanitizeOfflineUsername(account.username);
+      return { username, uuid: offlineUuid(username), accessToken: "0" };
+    }
   }
 
   const username = sanitizeOfflineUsername(request.offlineUsername ?? account?.username);
